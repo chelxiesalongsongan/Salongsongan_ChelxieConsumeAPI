@@ -1,0 +1,77 @@
+﻿@model List<Salongsongan_ChelxieConsumeAPI.Models.Product>
+
+@{
+    ViewData["Title"] = "Products";
+    string searchTerm = Context.Request.Query["name"];
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Products</h1>
+    <a asp-action="Create" class="btn btn-primary">Add product</a>
+</div>
+
+@* Part 14 – Search *@
+<form asp-action="Search" method="get" class="d-flex gap-2 mb-3">
+    <input type="text" name="name" value="@searchTerm" class="form-control"
+           placeholder="Search by product name" />
+    <button type="submit" class="btn btn-outline-primary">Search</button>
+    @if (!string.IsNullOrWhiteSpace(searchTerm))
+    {
+        <a asp-action="Index" class="btn btn-outline-secondary">Clear</a>
+    }
+</form>
+
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert-danger">@ViewBag.Error</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+@if (ViewBag.Message != null)
+{
+    <div class="alert alert-info">@ViewBag.Message</div>
+}
+
+@if (Model != null && Model.Any())
+{
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th class="text-end">Price</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var product in Model)
+                {
+                    <tr>
+                        <td>@product.Id</td>
+                        <td>@product.Name</td>
+                        <td class="text-end">@product.Price.ToString("N2")</td>
+                        <td class="text-end">
+                            <a asp-action="Edit" asp-route-id="@product.Id"
+                               class="btn btn-sm btn-outline-secondary">Edit</a>
+
+                            @* Part 13 – Delete *@
+                            <form asp-action="Delete" asp-route-id="@product.Id"
+                                  method="post" class="d-inline"
+                                  onsubmit="return confirm('Delete @product.Name?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else if (ViewBag.Message == null && ViewBag.Error == null)
+{
+    <p class="text-muted">No products yet. <a asp-action="Create">Add the first one.</a></p>
+}
